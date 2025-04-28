@@ -4,9 +4,10 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
 //import { menuItems } from "./constants.js";
 import "@mantine/core/styles.css";
+import Slots from "./MenuPages/Slots.jsx";
 
 // Компоненты для разных страниц
-const SlotsPage = () => <div>Создание слотов на запись</div>;
+//const SlotsPage = () => <div>Создание слотов на запись</div>;
 const AppointmentsPage = () => <div>Запись на прием</div>;
 const PatientsPage = () => <div>Пациенты</div>;
 
@@ -18,7 +19,7 @@ function Shell() {
   const renderPage = () => {
     switch (activePage) {
       case "slots":
-        return <SlotsPage />;
+        return <Slots />;
       case "appointments":
         return <AppointmentsPage />;
       case "patients":
@@ -30,7 +31,7 @@ function Shell() {
 
   const menuItems = [
     {
-      label: "Создание слотов",
+      label: "Создание слотов для записи",
       icon: <IconCalendar size="1rem" />,
       path: "/slots",
     },
