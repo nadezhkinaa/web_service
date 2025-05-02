@@ -5,11 +5,12 @@ import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
 //import { menuItems } from "./constants.js";
 import "@mantine/core/styles.css";
 import Slots from "./MenuPages/Slots.jsx";
+import Patients from "./MenuPages/Patients.jsx";
 
 // Компоненты для разных страниц
 //const SlotsPage = () => <div>Создание слотов на запись</div>;
 const AppointmentsPage = () => <div>Запись на прием</div>;
-const PatientsPage = () => <div>Пациенты</div>;
+//const PatientsPage = () => <div>Пациенты</div>;
 
 function Shell() {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
@@ -23,7 +24,7 @@ function Shell() {
       case "appointments":
         return <AppointmentsPage />;
       case "patients":
-        return <PatientsPage />;
+        return <Patients />;
       default:
         return <SlotsPage />;
     }

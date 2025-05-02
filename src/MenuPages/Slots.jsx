@@ -9,31 +9,42 @@ import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 
 function Slots() {
+  const [doctorId, setDoctorId] = useState("");
   const [valueDate, setValueDate] = useState(null);
   const [valueTimeFrom, setValueTimeFrom] = useState("");
   const [valueTimeTo, setValueTimeTo] = useState("");
 
+  const formatDateTime = (dateObj, timeStr) => {
+    if (!dateObj || !timeStr) return "";
+
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${timeStr}:00`;
+  };
+
   function addSLot() {
+    const startTime = formatDateTime(valueDate, valueTimeFrom);
+    const endTime = formatDateTime(valueDate, valueTimeTo);
+    console.log(startTime);
+    console.log(endTime);
     axios({
       method: "POST",
       url: "http://localhost:1234/api/v1/slots/add",
       data: {
-        doctor_id: 3,
-        start_time: "2024-11-22 19:00:00",
-        end_time: "2024-11-22 19:20:00",
+        doctor_id: Number(doctorId),
+        start_time: startTime,
+        end_time: endTime,
       },
     })
       .then((response) => {
-        if (response.status == 200) {
-          /*setHosts(response.data.message.remote_node_list.map((s) => ({
-              hostname: s.hostname,
-              status: s.status,
-              cpu: s.cpu,
-              mem: s.mem,
-              disk: s.disk,
-              cores: result[s.hostname]
-            })),
-            )*/
+        if (response.status == 200 || response.status == 201) {
+          console.log("Слот успешно создан");
+          setDoctorId("");
+          setValueDate(null);
+          setTimeFrom("");
+          setTimeTo("");
         }
       })
       .catch((error) => {
@@ -55,7 +66,13 @@ function Slots() {
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         <Group align="flex-start" style={{ width: "100%", marginTop: "20px" }}>
           <Text w={140}>Введите id доктора:</Text>
-          <NumberInput placeholder="ID доктора" style={{ width: "200px" }} />
+          <NumberInput
+            placeholder="ID доктора"
+            value={doctorId}
+            onChange={setDoctorId}
+            hideControls
+            style={{ width: "200px" }}
+          />
         </Group>
 
         <Group align="flex-start" style={{ width: "100%" }}>
