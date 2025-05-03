@@ -7,21 +7,30 @@ import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
 import axios from "axios";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import MakePatients from "./PatientsItems/MakePatients";
+import InfoPatients from "./PatientsItems/InfoPatients";
+import AddInfo from "./PatientsItems/AddInfo";
 
 function Patients() {
   return (
-    <Tabs defaultValue="gallery">
+    <Tabs defaultValue="make">
       <Tabs.List>
-        <Tabs.Tab value="gallery">Gallery</Tabs.Tab>
-        <Tabs.Tab value="messages">Messages</Tabs.Tab>
-        <Tabs.Tab value="settings">Settings</Tabs.Tab>
+        <Tabs.Tab value="make">Создать пациента</Tabs.Tab>
+        <Tabs.Tab value="info">Информация о пациентах</Tabs.Tab>
+        <Tabs.Tab value="add">Добавить медзапиcь о пациенте</Tabs.Tab>
       </Tabs.List>
 
-      <Tabs.Panel value="gallery">Gallery tab content</Tabs.Panel>
+      <Tabs.Panel value="make">
+        <MakePatients></MakePatients>
+      </Tabs.Panel>
 
-      <Tabs.Panel value="messages">Messages tab content</Tabs.Panel>
+      <Tabs.Panel value="info">
+        <InfoPatients></InfoPatients>
+      </Tabs.Panel>
 
-      <Tabs.Panel value="settings">Settings tab content</Tabs.Panel>
+      <Tabs.Panel value="add">
+        <AddInfo></AddInfo>
+      </Tabs.Panel>
     </Tabs>
   );
 }

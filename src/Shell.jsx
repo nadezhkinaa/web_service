@@ -6,11 +6,7 @@ import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
 import "@mantine/core/styles.css";
 import Slots from "./MenuPages/Slots.jsx";
 import Patients from "./MenuPages/Patients.jsx";
-
-// Компоненты для разных страниц
-//const SlotsPage = () => <div>Создание слотов на запись</div>;
-const AppointmentsPage = () => <div>Запись на прием</div>;
-//const PatientsPage = () => <div>Пациенты</div>;
+import MakeAppointment from "./MenuPages/MakeAppointment.jsx";
 
 function Shell() {
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
@@ -22,11 +18,11 @@ function Shell() {
       case "slots":
         return <Slots />;
       case "appointments":
-        return <AppointmentsPage />;
+        return <MakeAppointment />;
       case "patients":
         return <Patients />;
       default:
-        return <SlotsPage />;
+        return <Slots />;
     }
   };
 
