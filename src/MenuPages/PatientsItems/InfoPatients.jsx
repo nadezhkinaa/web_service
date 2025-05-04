@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Group,
   Text,
@@ -7,6 +7,7 @@ import {
   Button,
   TextInput,
 } from "@mantine/core";
+import { DataTable } from "mantine-datatable";
 import { DatePickerInput, TimeInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
@@ -14,12 +15,29 @@ import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
 import axios from "axios";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import "mantine-datatable/styles.css";
+
+import { getInfoPatients } from "../InfoPatients.js";
 
 function InfoPatients() {
   const [surnameSearch, setSurnameSearch] = useState("");
   const [nameSearch, setNameSearch] = useState("");
   const [middleNameSearch, setMiddleNameSearch] = useState("");
   const [ageSearch, setAgeSearch] = useState(null);
+  const [info, setInfo] = useState([]);
+
+  const makeParams = () => {
+    let params = {};
+    if (surnameSearch) params.last_name = surnameSearch;
+    if (nameSearch) params.first_name = nameSearch;
+    if (middleNameSearch) params.middle_name = middleNameSearch;
+    if (ageSearch) params.age = ageSearch;
+    return params;
+  };
+
+  useEffect(() => {
+    getInfoPatients(setInfo, makeParams);
+  }, [surnameSearch, nameSearch, middleNameSearch, ageSearch]);
 
   return (
     <>
@@ -61,12 +79,66 @@ function InfoPatients() {
 
         <Button
           onClick={() => {
-            // addPatients();
+            getInfoPatients(setInfo, makeParams);
           }}
         >
           Поиск
         </Button>
       </Group>
+      <Group
+        style={{
+          marginTop: "20px",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          onClick={() => {
+            getInfoPatients(setInfo, makeParams);
+          }}
+        >
+          Обновить данные
+        </Button>
+      </Group>
+
+      <DataTable
+        highlightOnHover
+        textSelectionDisabled
+        striped
+        withTableBorder
+        withColumnBorders
+        noRecordsText="Пациенты не найдены"
+        style={{
+          marginTop: "40px",
+          minHeight: info.length === 0 ? 200 : undefined,
+          height: info.length > 0 ? "auto" : 200,
+          overflow: "visible",
+        }}
+        idAccessor="id"
+        columns={[
+          /*{
+            accessor: "id",
+            title: "ID",
+          },*/
+          {
+            accessor: "first_name",
+            title: "Фамилия",
+          },
+          {
+            accessor: "last_name",
+            title: "Имя",
+          },
+          {
+            accessor: "middle_name",
+            title: "Отчество",
+          },
+          {
+            accessor: "age",
+            title: "Возраст",
+          },
+          { accessor: "medical_history", title: "Медицинская история" },
+        ].filter(Boolean)}
+        records={info}
+      />
     </>
   );
 }

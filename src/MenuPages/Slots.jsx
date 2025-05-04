@@ -65,7 +65,7 @@ function Slots() {
       <Title order={3}>Создание слотов</Title>
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         <Group align="flex-start" style={{ width: "100%", marginTop: "20px" }}>
-          <Text w={140}>Введите id доктора:</Text>
+          <Text w={140}>Введите ID доктора:</Text>
           <NumberInput
             placeholder="ID доктора"
             value={doctorId}

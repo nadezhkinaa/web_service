@@ -13,7 +13,7 @@ function MakePatients() {
   const [surname, setSurname] = useState("");
   const [name, setName] = useState("");
   const [middleName, setMiddleName] = useState("");
-  const [age, setAge] = useState(null);
+  const [age, setAge] = useState("");
 
   function addPatients() {
     axios({
@@ -22,17 +22,17 @@ function MakePatients() {
       data: {
         first_name: name,
         last_name: surname,
-        middleName: middleName !== "" ? middleName : undefined,
-        age: age,
+        middle_name: middleName !== "" ? middleName : undefined,
+        age: Number(age),
       },
     })
       .then((response) => {
         if (response.status == 200 || response.status == 201) {
-          console.log("Слот успешно создан");
+          console.log("Пациент  успешно создан");
           setSurname("");
           setName("");
           setMiddleName("");
-          setAge(null);
+          setAge("");
         }
       })
       .catch((error) => {
@@ -91,11 +91,12 @@ function MakePatients() {
           label="Введите возраст пациента"
           style={{ width: "30%" }}
           value={age}
-          onChange={setAge}
+          onChange={(value) => setAge(value.toString())}
         ></NumberInput>
 
         <Button
           style={{ width: "20%" }}
+          disabled={!surname || !name || !age}
           onClick={() => {
             addPatients();
           }}
