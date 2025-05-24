@@ -1,32 +1,40 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
-  Tabs,
   Button,
-  Table,
   Box,
   Group,
   NumberInput,
   Text,
   Paper,
-} from "@mantine/core"; // Добавлен Text
-import { DatePickerInput, TimeInput } from "@mantine/dates";
-import { useDisclosure } from "@mantine/hooks";
-import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
+  Select,
+} from "@mantine/core";
 import axios from "axios";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import { getInfoPatients } from "./InfoPatients.js";
+import { BACK_SERVER } from "../constants";
 
+//Компонент создания записи на прием
 function MakeAppointment() {
-  const [surname, setSurname] = useState("");
-  const [name, setName] = useState("");
-  const [middleName, setMiddleName] = useState("");
+  //ID доктора
   const [idDoctor, setIdDoctor] = useState(null);
+  //Свободные слоты для записи
   const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  //Выбранная дата
   const [selectedDate, setSelectedDate] = useState(null);
+  //Выбранный слот
   const [selectedSlot, setSelectedSlot] = useState(null);
+  //Список пациентов
+  const [patientsList, setPatientsList] = useState([]);
+  //Выбранный пациент
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  //Параметры для создания запроса получения информации о пациентах
+  const makeParams = () => {
+    let params = {};
+    return params;
+  };
 
+  //Функция преобразования времени в hh:mm
   const formatTime = (dateTimeStr) => {
     return new Date(dateTimeStr).toLocaleTimeString("ru-RU", {
       hour: "2-digit",
@@ -34,6 +42,7 @@ function MakeAppointment() {
     });
   };
 
+  //Функция форматирования даты (короткое название недели, число и полное название месяца)
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("ru-RU", {
@@ -43,6 +52,14 @@ function MakeAppointment() {
     });
   };
 
+  // Преобразование для select в формат ФИО из массива пациентов
+  const patientOptions = patientsList.map((patient) => ({
+    value: patient.id.toString(),
+    label:
+      `${patient.last_name} ${patient.first_name} ${patient.middle_name || ""}`.trim(),
+  }));
+
+  //Собирает уникальные даты
   const uniqueDates = useMemo(() => {
     const dates = new Set();
     slots.forEach((slot) => {
@@ -58,18 +75,16 @@ function MakeAppointment() {
     return slots.filter((slot) => slot.start_time.startsWith(selectedDate));
   }, [selectedDate, slots]);
 
+  //Загрузка информации о пациентов
+  useEffect(() => {
+    getInfoPatients(setPatientsList, makeParams);
+  }, []);
+
+  //Функция GET-запроса для получения информации о свободных слотах
   function findSlots() {
-    if (!idDoctor) {
-      setError("Введите ID доктора");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
     axios({
       method: "GET",
-      url: `http://localhost:1234/api/v1/slots/free/${idDoctor}`,
+      url: `${BACK_SERVER}/api/v1/slots/free/${idDoctor}`,
     })
       .then((response) => {
         if (response.status === 200 || response.status === 201) {
@@ -81,15 +96,44 @@ function MakeAppointment() {
       })
       .catch((error) => {
         if (error.response) {
-          setError(
-            `Ошибка: ${error.response.status} - ${error.response.statusText}`
+          alert(
+            `Ошибка: ${error.response.status} - ${error.response.statusText}`,
+            "red"
           );
         } else {
-          setError("Произошла ошибка при загрузке данных");
+          alert("Произошла ошибка при загрузке данных");
+        }
+      });
+  }
+
+  //Функция POST-запроса запись на прием
+  function addAppointment() {
+    axios({
+      method: "POST",
+      url: `${BACK_SERVER}/api/v1/appointments/book`,
+      data: {
+        patient_id: selectedPatient,
+        schedule_id: selectedSlot.id,
+      },
+    })
+      .then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          alert(`Запись на ${selectedSlot.start_time} подтверждена`);
+          setSelectedSlot(null);
+          setSlots([]);
+          setSelectedPatient(null);
+          setIdDoctor("");
         }
       })
-      .finally(() => {
-        setLoading(false);
+      .catch((error) => {
+        if (error.response) {
+          alert(
+            `Ошибка: ${error.response.status} - ${error.response.statusText}`,
+            "red"
+          );
+        } else {
+          alert("Произошла ошибка при загрузке данных");
+        }
       });
   }
 
@@ -103,6 +147,18 @@ function MakeAppointment() {
           alignItems: "flex-start",
         }}
       >
+        <Select
+          withAsterisk
+          label="Выберите пациента"
+          placeholder="Поиск пациента..."
+          data={patientOptions}
+          value={selectedPatient}
+          onChange={setSelectedPatient}
+          style={{ width: "100%", maxWidth: "500px" }}
+          searchable
+          clearable
+          nothingFoundMessage="Пациенты не найдены"
+        />
         <NumberInput
           withAsterisk
           hideControls
@@ -116,12 +172,10 @@ function MakeAppointment() {
         <Button
           style={{ width: "20%" }}
           onClick={findSlots}
-          disabled={!idDoctor}
+          disabled={!idDoctor || !selectedPatient}
         >
           Показать свободные слоты
         </Button>
-
-        {error && <Text color="red">{error}</Text>}
       </Group>
 
       {slots.length > 0 && (
@@ -133,7 +187,7 @@ function MakeAppointment() {
                 variant={selectedDate === date ? "filled" : "outline"}
                 onClick={() => {
                   setSelectedDate(date);
-                  setSelectedSlot(null); // Сбрасываем выбранный слот при смене даты
+                  setSelectedSlot(null);
                 }}
               >
                 {formatDate(date)}
@@ -167,18 +221,14 @@ function MakeAppointment() {
           </Text>
           <Button
             mt="sm"
-            onClick={() =>
-              alert(`Запись на ${selectedSlot.start_time} подтверждена`)
-            }
+            onClick={() => {
+              addAppointment();
+            }}
           >
             Записаться
           </Button>
         </Paper>
       )}
-
-      {/*slots.length === 0 && !loading && idDoctor && (
-        <Text>Нет доступных слотов для данного доктора</Text>
-      )*/}
     </Box>
   );
 }

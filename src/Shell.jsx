@@ -2,17 +2,20 @@ import { useState } from "react";
 import { AppShell, Burger, Group, Text, Title, NavLink } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
-//import { menuItems } from "./constants.js";
 import "@mantine/core/styles.css";
 import Slots from "./MenuPages/Slots.jsx";
 import Patients from "./MenuPages/Patients.jsx";
 import MakeAppointment from "./MenuPages/MakeAppointment.jsx";
 
+//Компонент строения сайта(шапка, меню)
 function Shell() {
+  // Состояние отображение компонентов
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  //Состояние открытой страницы
   const [activePage, setActivePage] = useState("slots");
 
+  //Рендер текущей страницы
   const renderPage = () => {
     switch (activePage) {
       case "slots":
@@ -26,6 +29,7 @@ function Shell() {
     }
   };
 
+  //Конфигурация меню
   const menuItems = [
     {
       label: "Создание слотов для записи",

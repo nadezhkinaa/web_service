@@ -1,24 +1,26 @@
 import { useState } from "react";
-import { Tabs } from "@mantine/core";
-import { Button, TextInput, Box, Group, NumberInput } from "@mantine/core";
-import { DatePickerInput, TimeInput } from "@mantine/dates";
-import { useDisclosure } from "@mantine/hooks";
-import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
-//import { menuItems } from "./constants.js";
+import { Button, TextInput, Group, NumberInput } from "@mantine/core";
 import axios from "axios";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import { BACK_SERVER } from "../../constants";
 
+//Компонент создания новых пациентов
 function MakePatients() {
+  //Фамилия пациента
   const [surname, setSurname] = useState("");
+  //Имя пациента
   const [name, setName] = useState("");
+  //Отчество пациента
   const [middleName, setMiddleName] = useState("");
+  //Возраст пациента
   const [age, setAge] = useState("");
 
+  //Функция POST-запроса создания нового пациента
   function addPatients() {
     axios({
       method: "POST",
-      url: "http://localhost:1234/api/v1/add-patients",
+      url: `${BACK_SERVER}/api/v1/add-patients`,
       data: {
         first_name: name,
         last_name: surname,
@@ -29,6 +31,7 @@ function MakePatients() {
       .then((response) => {
         if (response.status == 200 || response.status == 201) {
           console.log("Пациент  успешно создан");
+          alert("Пациент успешно создан");
           setSurname("");
           setName("");
           setMiddleName("");
@@ -38,7 +41,7 @@ function MakePatients() {
       .catch((error) => {
         if (error.response) {
           if (error.response.status >= 400 && error.response.status < 500) {
-            console.log(
+            alert(
               `Ошибка: ${error.response.status} - ${error.response.statusText}`,
               "red"
             );
@@ -65,6 +68,11 @@ function MakePatients() {
           style={{ width: "30%" }}
           value={surname}
           onChange={(event) => setSurname(event.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && surname && name && age) {
+              addPatients();
+            }
+          }}
         ></TextInput>
 
         <TextInput
@@ -74,6 +82,11 @@ function MakePatients() {
           style={{ width: "30%" }}
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && surname && name && age) {
+              addPatients();
+            }
+          }}
         ></TextInput>
 
         <TextInput
@@ -82,6 +95,11 @@ function MakePatients() {
           style={{ width: "30%" }}
           value={middleName}
           onChange={(event) => setMiddleName(event.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && surname && name && age) {
+              addPatients();
+            }
+          }}
         ></TextInput>
 
         <NumberInput
@@ -92,6 +110,11 @@ function MakePatients() {
           style={{ width: "30%" }}
           value={age}
           onChange={(value) => setAge(value.toString())}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && surname && name && age) {
+              addPatients();
+            }
+          }}
         ></NumberInput>
 
         <Button

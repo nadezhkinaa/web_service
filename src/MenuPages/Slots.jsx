@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { Group, Text, Title, NumberInput, Button } from "@mantine/core";
 import { DatePickerInput, TimeInput } from "@mantine/dates";
-import { useDisclosure } from "@mantine/hooks";
-import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
-//import { menuItems } from "./constants.js";
 import axios from "axios";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import { BACK_SERVER } from "../constants";
 
+//Компонент добавления слотов для записи
 function Slots() {
+  // ID Доктора
   const [doctorId, setDoctorId] = useState("");
+  // Значение даты
   const [valueDate, setValueDate] = useState(null);
+  // Значение начального времени
   const [valueTimeFrom, setValueTimeFrom] = useState("");
+  // Значение конечного времени
   const [valueTimeTo, setValueTimeTo] = useState("");
 
+  //Форматирование даты
   const formatDateTime = (dateObj, timeStr) => {
     if (!dateObj || !timeStr) return "";
 
@@ -24,14 +28,14 @@ function Slots() {
     return `${year}-${month}-${day} ${timeStr}:00`;
   };
 
+  //Функция POST запроса добавления нового слота
   function addSLot() {
     const startTime = formatDateTime(valueDate, valueTimeFrom);
     const endTime = formatDateTime(valueDate, valueTimeTo);
-    console.log(startTime);
-    console.log(endTime);
+
     axios({
       method: "POST",
-      url: "http://localhost:1234/api/v1/slots/add",
+      url: `${BACK_SERVER}/api/v1/slots/add`,
       data: {
         doctor_id: Number(doctorId),
         start_time: startTime,
@@ -40,17 +44,17 @@ function Slots() {
     })
       .then((response) => {
         if (response.status == 200 || response.status == 201) {
-          console.log("Слот успешно создан");
+          alert("Слот успешно создан");
           setDoctorId("");
           setValueDate(null);
-          setTimeFrom("");
-          setTimeTo("");
+          setValueTimeFrom("");
+          setValueTimeTo("");
         }
       })
       .catch((error) => {
         if (error.response) {
           if (error.response.status >= 400 && error.response.status < 500) {
-            console.log(
+            alert(
               `Ошибка: ${error.response.status} - ${error.response.statusText}`,
               "red"
             );
@@ -72,6 +76,17 @@ function Slots() {
             onChange={setDoctorId}
             hideControls
             style={{ width: "200px" }}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                doctorId &&
+                valueDate &&
+                valueTimeFrom &&
+                valueTimeTo
+              ) {
+                addSLot();
+              }
+            }}
           />
         </Group>
 
@@ -82,6 +97,17 @@ function Slots() {
             value={valueDate}
             onChange={setValueDate}
             style={{ width: "200px" }}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                doctorId &&
+                valueDate &&
+                valueTimeFrom &&
+                valueTimeTo
+              ) {
+                addSLot();
+              }
+            }}
           />
         </Group>
 
@@ -98,6 +124,17 @@ function Slots() {
                   setValueTimeFrom(event.currentTarget.value)
                 }
                 style={{ width: "200px" }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    doctorId &&
+                    valueDate &&
+                    valueTimeFrom &&
+                    valueTimeTo
+                  ) {
+                    addSLot();
+                  }
+                }}
               />
             </Group>
             <Group style={{ alignItems: "flex-start" }}>
@@ -106,6 +143,17 @@ function Slots() {
                 value={valueTimeTo}
                 onChange={(event) => setValueTimeTo(event.currentTarget.value)}
                 style={{ width: "200px" }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    doctorId &&
+                    valueDate &&
+                    valueTimeFrom &&
+                    valueTimeTo
+                  ) {
+                    addSLot();
+                  }
+                }}
               />
             </Group>
           </div>

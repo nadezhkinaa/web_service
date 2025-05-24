@@ -1,31 +1,25 @@
 import { useState, useEffect } from "react";
-import {
-  Group,
-  Text,
-  Title,
-  NumberInput,
-  Button,
-  TextInput,
-} from "@mantine/core";
+import { Group, NumberInput, Button, TextInput } from "@mantine/core";
 import { DataTable } from "mantine-datatable";
-import { DatePickerInput, TimeInput } from "@mantine/dates";
-import { useDisclosure } from "@mantine/hooks";
-import { IconCalendar, IconPencil, IconUser } from "@tabler/icons-react";
-//import { menuItems } from "./constants.js";
-import axios from "axios";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "mantine-datatable/styles.css";
-
 import { getInfoPatients } from "../InfoPatients.js";
 
-function InfoPatients() {
+//Компонент отрбражения информации о пациентах
+function InfoPatients({ activeTab }) {
+  //Фамилия искомого пациента
   const [surnameSearch, setSurnameSearch] = useState("");
+  //Имя искомого пациента
   const [nameSearch, setNameSearch] = useState("");
+  //Отчество искомого пациента
   const [middleNameSearch, setMiddleNameSearch] = useState("");
+  //Возраст искомого пациента
   const [ageSearch, setAgeSearch] = useState(null);
+  //Отображаемая информация
   const [info, setInfo] = useState([]);
 
+  //Функция формирования параметров для запроса
   const makeParams = () => {
     let params = {};
     if (surnameSearch) params.last_name = surnameSearch;
@@ -35,9 +29,17 @@ function InfoPatients() {
     return params;
   };
 
+  //Загрузка информации
   useEffect(() => {
     getInfoPatients(setInfo, makeParams);
   }, [surnameSearch, nameSearch, middleNameSearch, ageSearch]);
+
+  //Загрузка информации при смене вкладки панели
+  useEffect(() => {
+    if (activeTab === "info") {
+      getInfoPatients(setInfo, makeParams);
+    }
+  }, [activeTab]);
 
   return (
     <>
@@ -53,6 +55,11 @@ function InfoPatients() {
           label="Введите фамилию пациента"
           value={surnameSearch}
           onChange={(event) => setSurnameSearch(event.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              getInfoPatients(setInfo, makeParams);
+            }
+          }}
         ></TextInput>
 
         <TextInput
@@ -60,6 +67,11 @@ function InfoPatients() {
           label="Введите имя пациента"
           value={nameSearch}
           onChange={(event) => setNameSearch(event.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              getInfoPatients(setInfo, makeParams);
+            }
+          }}
         ></TextInput>
 
         <TextInput
@@ -67,6 +79,11 @@ function InfoPatients() {
           label="Введите отчество пациента"
           value={middleNameSearch}
           onChange={(event) => setMiddleNameSearch(event.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              getInfoPatients(setInfo, makeParams);
+            }
+          }}
         ></TextInput>
 
         <NumberInput
@@ -75,6 +92,11 @@ function InfoPatients() {
           label="Введите возраст пациента"
           value={ageSearch}
           onChange={setAgeSearch}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              getInfoPatients(setInfo, makeParams);
+            }
+          }}
         ></NumberInput>
 
         <Button
@@ -115,10 +137,6 @@ function InfoPatients() {
         }}
         idAccessor="id"
         columns={[
-          /*{
-            accessor: "id",
-            title: "ID",
-          },*/
           {
             accessor: "first_name",
             title: "Фамилия",
